@@ -64,9 +64,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: HFPunch-unsigned-ipa
-
-      - name: Unzip artifact
-        run: unzip -o HFPunch-unsigned-ipa.zip
+          # v4 auto-extracts into ./HFPunch-unsigned-ipa/
 
       - name: Install zsign
         run: brew install zsign
@@ -81,4 +79,4 @@ jobs:
           UDID_WORKER_URL: ${{ secrets.UDID_WORKER_URL }}
           UDID_WORKER_TOKEN: ${{ secrets.UDID_WORKER_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/sign-and-release.sh HFPunch-unsigned.ipa
+        run: bash scripts/sign-and-release.sh HFPunch-unsigned-ipa/HFPunch-unsigned.ipa
