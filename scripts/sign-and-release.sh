@@ -54,8 +54,8 @@ print(base64.urlsafe_b64encode(fix(r) + fix(s)).decode().rstrip('='))
 ")
 TOKEN="$HDR.$CLM.$SIG"
 
-asc_get()  { curl -sS -f -H "Authorization: Bearer $TOKEN" "https://api.appstoreconnect.apple.com$1"; }
-asc_post() { curl -sS -f -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$2" "https://api.appstoreconnect.apple.com$1"; }
+asc_get()  { curl -g -sS -f -H "Authorization: Bearer $TOKEN" "https://api.appstoreconnect.apple.com$1"; }
+asc_post() { curl -g -sS -f -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$2" "https://api.appstoreconnect.apple.com$1"; }
 
 echo "==> finding signing certificate id"
 P12_SERIAL=$(openssl pkcs12 -in cert.p12 -passin "pass:$CERT_PASSWORD" -nokeys -clcerts 2>/dev/null \
