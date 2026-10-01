@@ -1,0 +1,47 @@
+name: Build unsigned IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Archive (unsigned)
+        run: |
+          xcodebuild -project HFPunch.xcodeproj \
+            -scheme HFPunch \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/HFPunch.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Package unsigned IPA
+        run: |
+          cd build/HFPunch.xcarchive/Products/Applications
+          mkdir -p Payload
+          cp -r HFPunch.app Payload/
+          zip -qry HFPunch-unsigned.ipa Payload
+          mv HFPunch-unsigned.ipa "$GITHUB_WORKSPACE/build/"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HFPunch-unsigned-ipa
+          path: build/HFPunch-unsigned.ipa
