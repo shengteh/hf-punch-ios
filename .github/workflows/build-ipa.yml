@@ -1,9 +1,15 @@
-name: Build unsigned IPA
+name: Build and sign IPA
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
+  schedule:
+    # Weekly rebuild Monday 03:00 UTC — picks up newly registered UDIDs
+    - cron: "0 3 * * 1"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -40,8 +46,39 @@ jobs:
           zip -qry HFPunch-unsigned.ipa Payload
           mv HFPunch-unsigned.ipa "$GITHUB_WORKSPACE/build/"
 
-      - name: Upload IPA artifact
+      - name: Upload unsigned IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: HFPunch-unsigned-ipa
           path: build/HFPunch-unsigned.ipa
+
+  release:
+    needs: build
+    runs-on: macos-14
+    # Only signs when the cert secrets exist; skips gracefully otherwise
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download unsigned IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: HFPunch-unsigned-ipa
+
+      - name: Unzip artifact
+        run: unzip -o HFPunch-unsigned-ipa.zip
+
+      - name: Install zsign
+        run: brew install zsign
+
+      - name: Sign and release
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_B64: ${{ secrets.ASC_KEY_P8_B64 }}
+          CERT_P12_B64: ${{ secrets.CERT_P12_B64 }}
+          CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
+          UDID_WORKER_URL: ${{ secrets.UDID_WORKER_URL }}
+          UDID_WORKER_TOKEN: ${{ secrets.UDID_WORKER_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/sign-and-release.sh HFPunch-unsigned.ipa

@@ -1,0 +1,12 @@
+name = "hf-punch-udid"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+# After `npx wrangler kv namespace create UDIDS`, paste the id below.
+[[kv_namespaces]]
+binding = "UDIDS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Set the shared secret after deploy:
+#   npx wrangler secret put TOKEN
+# CI uses the same value as the UDID_WORKER_TOKEN GitHub secret.
