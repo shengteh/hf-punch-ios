@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,7 +54,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-15
     # Only signs when the cert secrets exist; skips gracefully otherwise
     steps:
       - name: Checkout
