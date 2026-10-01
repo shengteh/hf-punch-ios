@@ -46,11 +46,11 @@ final class ShellViewController: UIViewController, WKNavigationDelegate, WKScrip
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true
         ))
-        content.add(self, contentWorld: .page, for: "HFShell")
+        content.add(self, contentWorld: .page, name: "HFShell")
 
         let cfg = WKWebViewConfiguration()
         cfg.userContentController = content
-        cfg.websiteDataStore = .default // persistent localStorage (hf_punch_token / hf_punch_worker)
+        cfg.websiteDataStore = .default() // persistent localStorage (hf_punch_token / hf_punch_worker)
 
         webView = WKWebView(frame: .zero, configuration: cfg)
         webView.translatesAutoresizingMaskIntoConstraints = false
